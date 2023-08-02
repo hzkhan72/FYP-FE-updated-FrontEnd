@@ -1,4 +1,4 @@
-import { Login, Home, Dashboard } from "../modules";
+import { Login, Home, Dashboard, Signup } from "../modules";
 import Summarize from "../modules/public/summarize";
 
 export const ALERT_TIMEOUT = 3000;
@@ -55,6 +55,8 @@ export const HOME_ROUTE = "/";
 export const SUMMARIZE_ROUTE = "/summarize";
 // AUTH ROUTES
 export const lOGIN_ROUTE = "/login";
+export const SIGN_UP_ROUTE = "/register";
+
 // PRIVATE ROUTES
 export const DASHBOARD_ROUTE = "/dashboard";
 
@@ -77,6 +79,14 @@ export const PAGE_ROUTES = [
     description: "",
     access: ACCESS_TYPES.AUTH,
     component: <Login />,
+  },
+
+  {
+    route: SIGN_UP_ROUTE,
+    title: "Sign Up",
+    description: "",
+    access: ACCESS_TYPES.AUTH,
+    component: <Signup />,
   },
   // PRIVATE ROUTE
   {
