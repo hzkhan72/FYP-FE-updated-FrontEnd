@@ -69,7 +69,7 @@ export const PAGE_ROUTES = [
   },
   {
     route: SUMMARIZE_ROUTE,
-    access: ACCESS_TYPES.PUBLIC,
+    access: ACCESS_TYPES.PRIVATE,
     component: <Summarize />,
   },
   // AUTH ROUTES
@@ -94,7 +94,7 @@ export const PAGE_ROUTES = [
     title: "Dashboard",
     description: "",
     access: ACCESS_TYPES.PRIVATE,
-    component: <Dashboard />,
+    component: <Home />,
   },
 ];
 export const WEB_STRINGS = {

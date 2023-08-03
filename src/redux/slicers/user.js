@@ -9,7 +9,7 @@ const UserReducer = createSlice({
   initialState: Immutable({
     data: {},
     profileSections: [],
-    isAuthenticated: true,
+    isAuthenticated: false,
     isError: null,
   }),
   reducers: {
@@ -45,6 +45,10 @@ const UserReducer = createSlice({
     userSignOutSuccess(state, action) {
       state.isAuthenticated = false;
     },
+
+    //SIGNUP
+    userSignUpRequest() {},
+    userSignUpSuccess(state, action) {},
   },
 });
 
@@ -55,6 +59,8 @@ export const {
   removeAuthError,
   userSignOutRequest,
   userSignOutSuccess,
+  userSignUpRequest,
+  userSignUpSuccess,
 } = UserReducer.actions;
 
 export default UserReducer.reducer;

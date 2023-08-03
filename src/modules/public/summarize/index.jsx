@@ -1,8 +1,9 @@
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Input, Radio, Select } from "antd";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
+import { ButtonComponent } from "../../../components";
 import {
   getSummaryRequest,
   storeSummarry,
@@ -10,15 +11,19 @@ import {
 } from "../../../redux/slicers/general";
 import { Images } from "../../../theme";
 import "./styles.scss";
+import { toastAlert } from "../../../services/utils";
+import { ALERT_TYPES } from "../../../constants";
 
 const Summarize = () => {
   const [summarizeForm] = Form.useForm();
   const [selectedLang, setSelectedlang] = useState("eng_summary");
   const [isLoading, setLoading] = useState(false);
+  const [isQuizView, setQuizView] = useState(false);
+  const [quizData, setQuizData] = useState([]);
   const summarizedData = useSelector((state) => state.general.data);
   const topicName = useSelector((state) => state.general.topicName);
   const dispatch = useDispatch();
-  const [quizQuestions, setQuizQuestions] = useState([]);
+  const { form } = Form.useForm();
 
   const handleSubmit = () => {
     setLoading(true);
@@ -27,22 +32,36 @@ const Summarize = () => {
     fetch(FinalURL)
       .then((res) => res.json())
       .then((result) => {
+        console.log(result, "res");
         dispatch(storeSummarry(result?.data?.result));
+        setQuizData(result?.data?.quiz_questions);
         setLoading(false);
       });
   };
 
-  const handleGenerateQuiz = () => {
-    setLoading(true);
-    const values = summarizeForm.getFieldsValue();
-    var FinalURL = `http://127.0.0.1:5000/api/?video_url=${values.url}`;
-    fetch(FinalURL)
-      .then((res) => res.json())
-      .then((result) => {
-        dispatch(storeSummarry(result?.data?.result));
-        setQuizQuestions(result?.data?.quiz_questions || []);
-        setLoading(false);
-      });
+  function intersection(arr1, arr2) {
+    const result = [];
+
+    const minLength = Math.min(arr1.length, arr2.length);
+    for (let i = 0; i < minLength; i++) {
+      if (arr1[i] === arr2[i]) {
+        result.push(arr1[i]);
+      }
+    }
+
+    return result;
+  }
+
+  const handleQuizSubmit = (values) => {
+    console.log(values);
+    let score = 0;
+    const valuesArray = Object.values(values);
+    const answers = quizData?.map((item) => item?.answer);
+
+    const correct = intersection(valuesArray, answers);
+
+    toastAlert(`Your score was ${correct?.length}/5`, ALERT_TYPES.success);
+    setQuizView(false);
   };
 
   useEffect(() => {
@@ -71,13 +90,6 @@ const Summarize = () => {
           <Form.Item>
             <Button type="primary" htmlType="submit" className="summarize-btn">
               Summarize
-            </Button>
-            <Button
-              type="primary"
-              onClick={handleGenerateQuiz}
-              className="quiz-btn"
-            >
-              Generate Quiz
             </Button>
           </Form.Item>
         </Form>
@@ -114,25 +126,49 @@ const Summarize = () => {
                   ? summarizedData?.eng_summary
                   : summarizedData?.urdu_summary}
               </p>
-              <a
-                href={`https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=${summarizedData?.topic}`}
-                target={"_blank"}
-              >
-                References
-              </a>
+              <div className="ref-wrapper">
+                <a
+                  href={`https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=${summarizedData?.topic}`}
+                  target={"_blank"}
+                >
+                  References
+                </a>
+                <ButtonComponent
+                  text="Generate Quiz"
+                  onClick={() => setQuizView(true)}
+                />
+              </div>
             </div>
           )
         )}
-        {quizQuestions.length > 0 && (
-          <div className="quiz-questions">
-            <h3>Quiz Questions</h3>
-            {quizQuestions.map((question, index) => (
-              <div key={index}>
-                <p>{question.statement}</p>
-                <p>Answer: {question.answer ? "True" : "False"}</p>
+        {isQuizView && (
+          <Form form={form} className="quiz-form" onFinish={handleQuizSubmit}>
+            <h1>Quiz</h1>
+            {quizData?.map((item, index) => (
+              <div className="quiz-item">
+                <h3>
+                  Q{item?.id} {item?.question}
+                </h3>
+                <Form.Item
+                  name={`${item?.id}`}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select an answer.",
+                    },
+                  ]}
+                >
+                  <Radio.Group value={null}>
+                    <Radio value={"A"}>True</Radio>
+                    <Radio value={"B"}>False</Radio>
+                  </Radio.Group>
+                </Form.Item>
               </div>
             ))}
-          </div>
+            <Form.Item>
+              <ButtonComponent text="Submit" />
+            </Form.Item>
+          </Form>
         )}
       </span>
     </section>

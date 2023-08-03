@@ -7,6 +7,7 @@ import { lOGIN_ROUTE } from "../../constants";
 function PrivateSharedLayout({ children }) {
   const navigate = useNavigate();
   const authenticated = useSelector(({ user }) => user.isAuthenticated);
+  console.log(authenticated, "auth");
   useEffect(() => {
     if (!authenticated) {
       navigate(lOGIN_ROUTE);
